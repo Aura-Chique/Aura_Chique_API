@@ -1,5 +1,6 @@
 const usuarioModel = require('../models/usuarioModel');
 const bcrypt = require('bcrypt'); // biblioteca para criptografar a senha do usuário
+const jwt = require('jsonwebtoken'); // biblioteca para gerar o token JWT
 
 async function cadastrar(req, res) {
     // Pega os dados enviados pelo corpo da requisição (JSON)
@@ -17,10 +18,10 @@ async function cadastrar(req, res) {
 
         // Manda para o Model salvar no banco
         const resultado = await usuarioModel.cadastrar(nome, email, senhaCriptografada);
-        
-        res.status(201).json({ 
-            mensagem: 'Usuário cadastrado com sucesso!', 
-            idUsuario: resultado.insertId 
+
+        res.status(201).json({
+            mensagem: 'Usuário cadastrado com sucesso!',
+            idUsuario: resultado.insertId
         });
 
     } catch (erro) {
@@ -29,6 +30,56 @@ async function cadastrar(req, res) {
     }
 }
 
+async function login(req, res) {
+    // Pega os dados enviados pelo corpo da requisição (JSON)
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+        return res.status(400).json({ mensagem: 'Preencha todos os campos!' });
+    }
+
+    try {
+        // Manda para o Model verificar se o usuário existe
+        const usuario = await usuarioModel.login(email);
+
+        if (!usuario) {
+            return res.status(401).json({ mensagem: 'Email ou senha inválidos!' });
+        }
+
+        // Compara a senha enviada com a senha criptografada no banco
+        const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+
+        if (!senhaValida) {
+            return res.status(401).json({ mensagem: 'Email ou senha inválidos!' });
+        }
+
+        // Gera o token JWT
+        const token = jwt.sign(
+            // Payload: Dados não-sensíveis que vão ficar guardados dentro do token
+            { id: usuario.id, email: usuario.email, papel: usuario.papel },
+            process.env.JWT_SECRET, // Sua chave secreta super forte do .env
+            { expiresIn: '2h' } // O token expira em 2 horas
+        );
+
+        // Retorna sucesso e entrega o token para o usuário
+        res.status(200).json({
+            mensagem: 'Login realizado com sucesso!',
+            token: token,
+            usuario: {
+                id: usuario.id,
+                nome: usuario.nome,
+                papel: usuario.papel
+            }
+        });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ mensagem: 'Erro interno ao realizar login.' });
+    }
+}
+
+
 module.exports = {
-    cadastrar
+    cadastrar,
+    login
 };
