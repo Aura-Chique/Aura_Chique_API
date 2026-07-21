@@ -1,6 +1,3 @@
-require('dotenv').config(); // 1. Carrega as variáveis do seu arquivo .env
-
-
 // Define que por padrão vamos usar 'desenvolvimento' caso nada seja informado
 const ambiente = process.env.NODE_ENV || 'desenvolvimento';
 
@@ -20,7 +17,7 @@ const porta = process.env.PORT || 3000;
 
 // Configurações da API
 app.use(cors()); // Libera sua API para ser acessada por um frontend
-app.use(express.json()); // 4. ESSENCIAL: Permite que sua API leia dados enviados em JSON (como email e senha)
+app.use(express.json()); //Permite que sua API leia dados enviados em JSON (como email e senha)
 
 
 // Importa as rotas
@@ -32,8 +29,8 @@ app.get('/', (req, res) => {
   res.json({ mensagem: 'Minha API com segurança e variáveis de ambiente está rodando!' });
 });
 
-// Diz para o app usar essas rotas sempre que o caminho começar com /usuarios
-app.use('/usuarios', usuarioRoute);
+// Diz para o app usar essas rotas sempre que o caminho começar com /api/usuarios
+app.use('/api/usuarios', usuarioRoute);
 
 // Inicia o servidor
 app.listen(porta, () => {

@@ -90,3 +90,19 @@ CREATE TABLE itens_pedido (
     CONSTRAINT fk_item_variacao FOREIGN KEY (variacao_id) 
         REFERENCES variacoes_produto(id) ON DELETE RESTRICT
 );
+
+-- 4. CARRINHO DE COMPRAS
+
+CREATE TABLE carrinho_itens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    variacao_id INT NOT NULL,
+    quantidade INT NOT NULL DEFAULT 1,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_carrinho_usuario FOREIGN KEY (usuario_id) 
+        REFERENCES usuarios(id) ON DELETE CASCADE,
+    CONSTRAINT fk_carrinho_variacao FOREIGN KEY (variacao_id) 
+        REFERENCES variacoes_produto(id) ON DELETE CASCADE,
+    CONSTRAINT uk_usuario_variacao UNIQUE (usuario_id, variacao_id)
+);

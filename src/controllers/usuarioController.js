@@ -31,7 +31,7 @@ async function cadastrar(req, res) {
 }
 
 async function login(req, res) {
-    // Pega os dados enviados pelo corpo da requisição (JSON)
+    // Pega os dados enviados pelo corpo da requisição
     const { email, senha } = req.body;
 
     if (!email || !senha) {
@@ -57,7 +57,7 @@ async function login(req, res) {
         const token = jwt.sign(
             // Payload: Dados não-sensíveis que vão ficar guardados dentro do token
             { id: usuario.id, email: usuario.email, papel: usuario.papel },
-            process.env.JWT_SECRET, // Sua chave secreta super forte do .env
+            process.env.JWT_SECRET,
             { expiresIn: '2h' } // O token expira em 2 horas
         );
 
@@ -78,8 +78,30 @@ async function login(req, res) {
     }
 }
 
+async function meuPerfil(req, res) {
+    try {
+        // Pegamos do Token
+        const idUsuarioLogado = req.usuario.id;
+
+        // Mandamos o Model buscar no banco de dados
+        const perfil = await usuarioModel.buscarPorId(idUsuarioLogado);
+
+        if (!perfil) {
+            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+        }
+
+        // Retornamos o perfil do usuário logado
+        res.status(200).json(perfil);
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ mensagem: 'Erro interno ao buscar o perfil do usuário.' });
+    }
+}
+
 
 module.exports = {
     cadastrar,
-    login
+    login,
+    meuPerfil
 };
