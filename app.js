@@ -22,6 +22,7 @@ app.use(express.json()); //Permite que sua API leia dados enviados em JSON (como
 
 // Importa as rotas
 const usuarioRoute = require('./src/routes/usuarioRoute');
+const enderecoRoute = require('./src/routes/enderecoRoute');
 
 
 // Rotas
@@ -31,6 +32,8 @@ app.get('/', (req, res) => {
 
 // Diz para o app usar essas rotas sempre que o caminho começar com /api/usuarios
 app.use('/api/usuarios', usuarioRoute);
+
+app.use('/api/enderecos', enderecoRoute);
 
 // Inicia o servidor
 app.listen(porta, () => {

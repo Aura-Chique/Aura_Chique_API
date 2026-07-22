@@ -99,9 +99,44 @@ async function meuPerfil(req, res) {
     }
 }
 
+async function atualizarPerfil(req, res) {
+    try {
+        const idUsuarioLogado = req.usuario.id;
+        const { nome, email } = req.body;
+        const perfilAtualizado = await usuarioModel.atualizarPerfil(idUsuarioLogado, { nome, email });
+
+        if (!perfilAtualizado) {
+            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+        }
+
+        res.status(200).json(perfilAtualizado);
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ mensagem: 'Erro interno ao atualizar o perfil do usuário.' });
+    }
+}
+
+async function deletarPerfil(req, res) {
+    try {
+        const idUsuarioLogado = req.usuario.id;
+        const resultado = await usuarioModel.deletarPerfil(idUsuarioLogado);
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+        }
+        res.status(200).json({ mensagem: 'Perfil do usuário deletado com sucesso.' });
+    }
+    catch (erro) {
+        console.error(erro);
+        res.status(500).json({ mensagem: 'Erro interno ao deletar o perfil do usuário.' });
+    }
+}
 
 module.exports = {
     cadastrar,
     login,
-    meuPerfil
+    meuPerfil,
+    atualizarPerfil,
+    deletarPerfil
 };
